@@ -5,7 +5,7 @@
   **Autonomous AI Agent Rental Concierge**
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-indigo.svg)](https://opensource.org/licenses/MIT)
-  [![Status: Beta](https://img.shields.io/badge/Status-Beta-pink.svg)](https://github.com/yourusername/ludify)
+  [![Status: Beta](https://img.shields.io/badge/Status-Beta-pink.svg)](https://github.com/RYuK006/ludify)
   [![Powered By: Gemini](https://img.shields.io/badge/AI-Gemini_2.5-blue.svg)](https://deepmind.google/technologies/gemini/)
   [![Framework: React](https://img.shields.io/badge/Frontend-React_19-cyan.svg)](https://react.dev)
 
