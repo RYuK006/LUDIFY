@@ -53,6 +53,8 @@ LUDIFY operates through a linear, multi-agent pipeline:
 *   **Styling:** TailwindCSS, Lucide React (Icons)
 *   **Grounding:** Google Maps Platform, Google Search
 
+View your app in AI Studio: https://ai.studio/apps/drive/1FRIkIHNYRhlyGqKg6UwzKXRKL0Y3No17
+
 ## ⚡ Quick Start
 
 ### Prerequisites
