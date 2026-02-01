@@ -95,16 +95,6 @@ LUDIFY operates through a linear, multi-agent pipeline:
 
 ---
 
-## 🤝 Contributing
-
-We welcome agents of all kinds. Please read `CONTRIBUTING.md` for details on our code of conduct, and the process for submitting pull requests.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 <div align="center">
   <sub>Built with ❤️ by the LUDIFY Team. <b>Let Us Do It For You.</b></sub>
 </div>
