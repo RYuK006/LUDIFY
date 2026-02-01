@@ -1,0 +1,7 @@
+{
+  "name": "Copy of LUDIFY | Let Us Do It For You",
+  "description": "LUDIFY is your autonomous rental concierge. We handle the discovery, commute strategy, and outreach for your next home so you don't have to.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
