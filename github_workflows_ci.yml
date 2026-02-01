@@ -1,0 +1,120 @@
+# GitHub Actions CI: auto-detects Node/Python/Docker and runs tests/lint/build accordingly
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+name: CI
+
+jobs:
+  detect-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect project type
+        id: detect
+        run: |
+          has_node=false
+          has_python=false
+          has_docker=false
+
+          if [ -f package.json ]; then has_node=true; fi
+          if [ -f requirements.txt ] || [ -f pyproject.toml ]; then has_python=true; fi
+          if [ -f Dockerfile ]; then has_docker=true; fi
+
+          echo "has_node=$has_node" >> $GITHUB_OUTPUT
+          echo "has_python=$has_python" >> $GITHUB_OUTPUT
+          echo "has_docker=$has_docker" >> $GITHUB_OUTPUT
+
+      # Node.js steps (run only if package.json exists)
+      - name: Cache npm
+        if: ${{ steps.detect.outputs.has_node == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Setup Node.js
+        if: ${{ steps.detect.outputs.has_node == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install & test (Node)
+        if: ${{ steps.detect.outputs.has_node == 'true' }}
+        run: |
+          # prefer npm ci when lockfile present
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+          # run lint if script exists
+          if npm run | grep -q "lint"; then
+            npm run lint || true
+          fi
+
+          # run test if script exists
+          if npm run | grep -q "test"; then
+            npm test
+          fi
+
+      # Python steps (run only if requirements.txt or pyproject.toml exists)
+      - name: Cache pip
+        if: ${{ steps.detect.outputs.has_python == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Setup Python
+        if: ${{ steps.detect.outputs.has_python == 'true' }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install & test (Python)
+        if: ${{ steps.detect.outputs.has_python == 'true' }}
+        run: |
+          set -e
+          # Install dependencies
+          if [ -f requirements.txt ]; then
+            pip install --upgrade pip
+            pip install -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            # use pip build/install where appropriate; keep generic
+            pip install --upgrade pip build
+            pip install .
+          fi
+
+          # Run lint if available
+          if command -v flake8 >/dev/null 2>&1; then
+            flake8 || true
+          fi
+
+          # Run tests if pytest available
+          if python -c "import pytest" >/dev/null 2>&1; then
+            pytest
+          else
+            # try running pytest via python -m pytest if installed in deps
+            if python -m pytest --version >/dev/null 2>&1; then
+              python -m pytest
+            fi
+          fi
+
+      # Docker build (if Dockerfile exists)
+      - name: Build Docker image
+        if: ${{ steps.detect.outputs.has_docker == 'true' }}
+        run: |
+          docker build -t ludify:${{ github.sha }} .
